@@ -141,4 +141,6 @@ public interface MavenDependencyResolver
     */
    MavenDependencyResolver loadDependenciesFromPom(final String path, final MavenResolutionFilter filter) throws ResolutionException;
 
+   MavenDependencyResolver useCentralRepo(final boolean useCentral);
+
 }

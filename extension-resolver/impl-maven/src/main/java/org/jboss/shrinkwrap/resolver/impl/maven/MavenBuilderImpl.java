@@ -73,7 +73,7 @@ public class MavenBuilderImpl implements MavenDependencyResolverInternal
    private static final Logger log = Logger.getLogger(MavenArtifactBuilderImpl.class.getName());
 
    private static final File[] FILE_CAST = new File[0];
-   
+
    private final MavenRepositorySystem system;
 
    private final RepositorySystemSession session;
@@ -162,7 +162,16 @@ public class MavenBuilderImpl implements MavenDependencyResolverInternal
    {
       return this.loadDependenciesFromPom(path, AcceptAllFilter.INSTANCE);
    }
-   
+
+   /**
+    * Loads dependencies from the specified path and applies the specified <tt>MavenResolutionFilter</tt>.
+    * Adds the Maven central repository by default.
+    *
+    * @param path path to file which contains the desired dependencies
+    * @param filter the filter to apply
+    * @return a corresponding <tt>MavenDependencyResolver</tt>
+    * @throws ResolutionException if any resolution related exceptions occur
+    */
    @Override
    public MavenDependencyResolver loadDependenciesFromPom(final String path, final MavenResolutionFilter filter) throws ResolutionException
    {
@@ -340,14 +349,23 @@ public class MavenBuilderImpl implements MavenDependencyResolverInternal
 
       return files.toArray(FILE_CAST);
    }
-   
+
+   public MavenDependencyResolver useCentralRepo(final boolean useCentral)
+   {
+      if(this.system != null)
+      {
+         this.system.setCentralRepositoryUsage(useCentral);
+      }
+      return this;
+   }
+
    /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * org.jboss.shrinkwrap.dependencies.DependencyBuilder.ArtifactBuilder
-    * #resolve()
-    */
+   * (non-Javadoc)
+   *
+   * @see
+   * org.jboss.shrinkwrap.dependencies.DependencyBuilder.ArtifactBuilder
+   * #resolve()
+   */
    public <ARCHIVEVIEW extends Assignable> Collection<ARCHIVEVIEW> resolveAs(final Class<ARCHIVEVIEW> archiveView) throws ResolutionException
    {
       return resolveAs(archiveView, AcceptAllFilter.INSTANCE);
@@ -523,6 +541,11 @@ public class MavenBuilderImpl implements MavenDependencyResolverInternal
          return delegate.loadDependenciesFromPom(path, filter);
       }
 
+      @Override
+      public MavenDependencyResolver useCentralRepo(final boolean useCentral)
+      {
+         return delegate.useCentralRepo(useCentral);
+      }
    }
    
    static class MavenArtifactsBuilderImpl implements MavenDependencyResolverInternal
@@ -761,5 +784,10 @@ public class MavenBuilderImpl implements MavenDependencyResolverInternal
          return delegate.loadDependenciesFromPom(path, filter);
       }
 
+      @Override
+      public MavenDependencyResolver useCentralRepo(final boolean useCentral)
+      {
+         return delegate.useCentralRepo(useCentral);
+      }
    }
 }
